@@ -5,10 +5,11 @@ import {
 import { ReactiveFormsModule } from '@angular/forms';
 
 import { DAFF_SWITCH_COMPONENTS } from '@daffodil/design/switch';
+
 @Component({
   // eslint-disable-next-line @angular-eslint/component-selector
-  selector: 'switch-error',
-  templateUrl: './switch-error.component.html',
+  selector: 'switch-sizes',
+  templateUrl: './switch-sizes.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     DAFF_SWITCH_COMPONENTS,
@@ -17,11 +18,9 @@ import { DAFF_SWITCH_COMPONENTS } from '@daffodil/design/switch';
   styles: [`
     :host {
       display: flex;
-      flex-wrap: wrap;
+      flex-direction: column;
+      gap: 0.5rem;
     }
   `],
 })
-export class SwitchErrorComponent {
-  checked = false;
-  error = false;
-}
+export class SwitchSizesComponent {}
