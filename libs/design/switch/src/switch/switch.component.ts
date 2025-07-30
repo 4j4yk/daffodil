@@ -1,10 +1,9 @@
-import { coerceBooleanProperty } from '@angular/cdk/coercion';
+/* eslint-disable quote-props */
 import {
+  booleanAttribute,
   ChangeDetectionStrategy,
   Component,
   EventEmitter,
-  HostBinding,
-  HostListener,
   Input,
   Output,
 } from '@angular/core';
@@ -42,54 +41,32 @@ export type DaffSwitchSize = DaffSizeSmallType;
       inputs: ['size'],
     },
   ],
+  host: {
+    'class': 'daff-switch',
+    '[class.checked]': 'checked',
+    '[class.left]': 'labelPosition === "left"',
+    '[class.right]': 'labelPosition === "right"',
+    '[class.top]': 'labelPosition === "top"',
+    '[class.bottom]': 'labelPosition === "bottom"',
+    '[class.daff-disabled]': 'disabled',
+    '(keydown)': 'handleKeydown($event)',
+  },
 })
 export class DaffSwitchComponent extends DaffSizableDirective<DaffSwitchSize> {
-  /**
-   * @docs-private
-   */
-  @HostBinding('class.daff-switch') private hostClass = true;
-
   /**
    * The position of the label relative to the switch.
    */
   @Input() labelPosition: DaffSwitchLabelPosition = DaffSwitchLabelPositionEnum.LEFT;
 
   /**
-   * @docs-private
-   */
-  @HostBinding('class') private get positionClasses() {
-    return `${this.labelPosition}`;
-  }
-
-  /**
-   * @docs-private
-   */
-  _disabled = false;
-  /**
    * Whether the switch is disabled.
    */
-  @Input() @HostBinding('class.daff-disabled') get disabled() {
-    return this._disabled;
-  }
-  set disabled(value: any) {
-    this._disabled = coerceBooleanProperty(value);
-  }
+  @Input({ transform: booleanAttribute }) disabled = false;
 
   /**
    * Current state of switch (on/off).
    */
-  @Input() @HostBinding('class.checked') checked = false;
-
-  /**
-   * @docs-private
-   */
-  @HostListener('keydown', ['$event'])
-  handleKeydown(event: KeyboardEvent) {
-    if (event.code === 'Space') {
-      event.preventDefault();
-      this.onToggle();
-    }
-  }
+  @Input() checked = false;
 
   /**
    * @docs-private
@@ -113,6 +90,13 @@ export class DaffSwitchComponent extends DaffSizableDirective<DaffSwitchSize> {
     if (!this.disabled) {
       this.checked = !this.checked;
       this.toggled.emit(this.checked);
+    }
+  }
+
+  private handleKeydown(event: KeyboardEvent) {
+    if (event.code === 'Space') {
+      event.preventDefault();
+      this.onToggle();
     }
   }
 }
