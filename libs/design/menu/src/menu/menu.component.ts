@@ -45,7 +45,6 @@ import { DaffMenuService } from '../services/menu.service';
     'class': 'daff-menu',
     'tabindex': '0',
     'role': 'menu',
-    '[attr.id]': 'uniqueId',
     '(keydown)': 'handleKeydown($event)',
   },
   imports: [
@@ -85,9 +84,6 @@ export class DaffMenuComponent implements AfterContentInit, AfterViewInit {
         event.preventDefault();
         this._keyManager.onKeydown(event);
         break;
-      default:
-        // Allow typing for typeahead
-        this._keyManager.onKeydown(event);
     }
   }
 
@@ -101,8 +97,7 @@ export class DaffMenuComponent implements AfterContentInit, AfterViewInit {
 
     this._keyManager = new FocusKeyManager(this._items)
       .withWrap()
-      .withHomeAndEnd()
-      .withTypeAhead();
+      .withHomeAndEnd();
   }
 
   /**

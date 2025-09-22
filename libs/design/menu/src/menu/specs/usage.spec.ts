@@ -9,10 +9,12 @@ import {
 } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+import { BehaviorSubject } from 'rxjs';
 
-import { DaffMenuComponent } from '../menu/menu.component';
-import { DaffMenuItemComponent } from '../menu-item/menu-item.component';
-import { provideTestMenuService } from '../testing/dummy-service';
+import { DaffMenuItemComponent } from '../../menu-item/menu-item.component';
+import { DaffMenuService } from '../../services/menu.service';
+import { provideTestMenuService } from '../../testing/dummy-service';
+import { DaffMenuComponent } from '../menu.component';
 
 @Component({
   template: `
@@ -28,7 +30,7 @@ import { provideTestMenuService } from '../testing/dummy-service';
 })
 class WrapperComponent {}
 
-describe('@daffodil/design/menu | DaffMenuComponent', () => {
+describe('@daffodil/design/menu | DaffMenuComponent | Usage', () => {
   let wrapper: WrapperComponent;
   let fixture: ComponentFixture<WrapperComponent>;
   let component: DaffMenuComponent;
@@ -60,7 +62,19 @@ describe('@daffodil/design/menu | DaffMenuComponent', () => {
     expect(wrapper).toBeTruthy();
   });
 
-  it('should focus the first focusable child', () => {
-    expect(document.activeElement === de.query(By.css('#focused')).nativeElement).toEqual(true);
+  it('should focus the first focusable child when menu is opened', () => {
+    expect(document.activeElement).toEqual(de.query(By.css('#focused')).nativeElement);
+  });
+
+  it('should call close on the service when the escape key is pressed', () => {
+    const menuService = TestBed.inject(DaffMenuService);
+    expect((<BehaviorSubject<boolean>>menuService.open$).value).toEqual(true);
+    const event = new KeyboardEvent('keydown',{
+      key: 'Escape',
+    });
+
+    de.nativeElement.dispatchEvent(event);
+    fixture.detectChanges();
+    expect((<BehaviorSubject<boolean>>menuService.open$).value).toEqual(false);
   });
 });
