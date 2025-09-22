@@ -2,6 +2,7 @@
 import {
   ConfigurableFocusTrapFactory,
   ConfigurableFocusTrap,
+  FocusKeyManager,
 } from '@angular/cdk/a11y';
 import {
   AfterContentInit,
@@ -9,18 +10,32 @@ import {
   ChangeDetectionStrategy,
   Component,
   ElementRef,
-  NgZone,
+  QueryList,
+  ContentChildren,
 } from '@angular/core';
-import {
-  filter,
-  fromEvent,
-} from 'rxjs';
-
-import { daffFocusableElementsSelector } from '@daffodil/design';
 
 import { DaffMenuItemComponent } from '../menu-item/menu-item.component';
 import { DaffMenuService } from '../services/menu.service';
 
+/**
+ * The floating panel that contains menu items.
+ * 
+ * @example
+ * <daff-menu>
+ *  <button daff-menu-item>
+ *    <fa-icon [icon]="faEdit" daffPrefix></fa-icon>
+ *      Edit
+ *    </button>
+ *    <button daff-menu-item>
+ *      <fa-icon [icon]="faTrash" daffPrefix></fa-icon>
+ *      Delete
+ *    </button>
+ *    <a href="/settings" daff-menu-item>
+ *      <fa-icon [icon]="faCog" daffPrefix></fa-icon>
+ *      Settings
+ *    </a>
+ * </daff-menu>
+ */
 @Component({
   selector: 'daff-menu',
   templateUrl: './menu.component.html',
@@ -30,6 +45,8 @@ import { DaffMenuService } from '../services/menu.service';
     'class': 'daff-menu',
     'tabindex': '0',
     'role': 'menu',
+    '[attr.id]': 'uniqueId',
+    '(keydown)': 'handleKeydown($event)',
   },
   imports: [
     DaffMenuItemComponent,
@@ -37,30 +54,41 @@ import { DaffMenuService } from '../services/menu.service';
 })
 export class DaffMenuComponent implements AfterContentInit, AfterViewInit {
   private _focusTrap: ConfigurableFocusTrap;
+  private _keyManager: FocusKeyManager<DaffMenuItemComponent>;
+
+  /**
+   * @docs-private
+   */
+  @ContentChildren(DaffMenuItemComponent) private _items: QueryList<DaffMenuItemComponent>;
 
   constructor(
     private _focusTrapFactory: ConfigurableFocusTrapFactory,
-    private _ngZone: NgZone,
     private _elementRef: ElementRef<HTMLElement>,
     private menuService: DaffMenuService,
-  ) {
-    /**
-     * Listen to `keydown` events outside the zone so that change detection is not run every
-     * time a key is pressed. Instead we re-enter the zone only if the `ESC` key is pressed.
-     *
-     */
-    this._ngZone.runOutsideAngular(() => {
-      fromEvent<KeyboardEvent>(this._elementRef.nativeElement, 'keyup')
-        .pipe(
-          filter((event) => event.key === 'Escape'),
-        )
-        .subscribe((event) =>
-          this._ngZone.run(() => {
-            this.menuService.close();
-            event.stopPropagation();
-          }),
-        );
-    });
+  ) {}
+
+  /**
+   * @docs-private
+   *
+   * Handle keyboard navigation
+   */
+  handleKeydown(event: KeyboardEvent): void {
+    switch (event.key) {
+      case 'Escape':
+        event.preventDefault();
+        this.menuService.close();
+        break;
+      case 'ArrowDown':
+      case 'ArrowUp':
+      case 'Home':
+      case 'End':
+        event.preventDefault();
+        this._keyManager.onKeydown(event);
+        break;
+      default:
+        // Allow typing for typeahead
+        this._keyManager.onKeydown(event);
+    }
   }
 
   /**
@@ -70,23 +98,21 @@ export class DaffMenuComponent implements AfterContentInit, AfterViewInit {
     this._focusTrap = this._focusTrapFactory.create(
       this._elementRef.nativeElement,
     );
+
+    this._keyManager = new FocusKeyManager(this._items)
+      .withWrap()
+      .withHomeAndEnd()
+      .withTypeAhead();
   }
 
   /**
    * @docs-private
    */
   ngAfterViewInit() {
-    const focusableChild = (<HTMLElement>this._elementRef.nativeElement.querySelector(
-      daffFocusableElementsSelector)
-    );
-
-    if(focusableChild) {
-      focusableChild.focus();
-    } else {
-      // There's a timing condition when computing HostBindings afterContentInit
-      // so to allow the menu to be focused, we manually set the tabindex.
-      this._elementRef.nativeElement.tabIndex = 0;
-      (<HTMLElement>this._elementRef.nativeElement).focus();
+    // Set focus to the first menu item when menu opens
+    if (this._items.length > 0) {
+      this._keyManager.setFirstItemActive();
+      this._keyManager.setActiveItem(0);
     }
   }
 }
