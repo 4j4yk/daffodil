@@ -21,6 +21,7 @@ import { DaffMenuService } from '../services/menu.service';
  * The floating panel that contains menu items.
  *
  * @example
+ * ```html
  * <daff-menu>
  *  <button daff-menu-item>
  *    <fa-icon [icon]="faEdit" daffPrefix></fa-icon>
@@ -35,6 +36,7 @@ import { DaffMenuService } from '../services/menu.service';
  *      Settings
  *    </a>
  * </daff-menu>
+ * ```
  */
 @Component({
   selector: 'daff-menu',
