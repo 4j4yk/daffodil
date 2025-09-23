@@ -9,7 +9,6 @@ import {
 } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
-import { BehaviorSubject } from 'rxjs';
 
 import { DaffMenuItemComponent } from '../../menu-item/menu-item.component';
 import { DaffMenuService } from '../../services/menu.service';
@@ -66,15 +65,50 @@ describe('@daffodil/design/menu | DaffMenuComponent | Usage', () => {
     expect(document.activeElement).toEqual(de.query(By.css('#focused')).nativeElement);
   });
 
-  it('should call close on the service when the escape key is pressed', () => {
-    const menuService = TestBed.inject(DaffMenuService);
-    expect((<BehaviorSubject<boolean>>menuService.open$).value).toEqual(true);
-    const event = new KeyboardEvent('keydown',{
-      key: 'Escape',
+  describe('Keyboard Events', () => {
+    let menuService: DaffMenuService;
+
+    beforeEach(() => {
+      menuService = TestBed.inject(DaffMenuService);
+      spyOn(menuService, 'close');
+      spyOn(component['_keyManager'], 'onKeydown');
     });
 
-    de.nativeElement.dispatchEvent(event);
-    fixture.detectChanges();
-    expect((<BehaviorSubject<boolean>>menuService.open$).value).toEqual(false);
+    it('should close menu on Escape key', () => {
+      const event = new KeyboardEvent('keydown', { key: 'Escape' });
+
+      component.handleKeydown(event);
+
+      expect(menuService.close).toHaveBeenCalledWith();
+    });
+
+    it('should handle ArrowDown key', () => {
+      const event = new KeyboardEvent('keydown', { key: 'ArrowDown' });
+      component.handleKeydown(event);
+
+      expect(component['_keyManager'].onKeydown).toHaveBeenCalledWith(event);
+    });
+
+    it('should handle ArrowUp key', () => {
+      const event = new KeyboardEvent('keydown', { key: 'ArrowUp' });
+      component.handleKeydown(event);
+
+      expect(component['_keyManager'].onKeydown).toHaveBeenCalledWith(event);
+    });
+
+    it('should handle Home key', () => {
+      const event = new KeyboardEvent('keydown', { key: 'Home' });
+      component.handleKeydown(event);
+
+      expect(component['_keyManager'].onKeydown).toHaveBeenCalledWith(event);
+    });
+
+    it('should handle End key', () => {
+      const event = new KeyboardEvent('keydown', { key: 'End' });
+
+      component.handleKeydown(event);
+
+      expect(component['_keyManager'].onKeydown).toHaveBeenCalledWith(event);
+    });
   });
 });

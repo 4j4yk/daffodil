@@ -53,6 +53,12 @@ describe('@daffodil/design/menu | DaffMenuComponent | Defaults', () => {
     expect(wrapper).toBeTruthy();
   });
 
+  it('should add a class of "daff-menu" to the host element', () => {
+    expect(de.classes).toEqual(jasmine.objectContaining({
+      'daff-menu': true,
+    }));
+  });
+
   it('should have a tabindex of 0', () => {
     expect(de.nativeElement.tabIndex).toEqual(0);
   });
