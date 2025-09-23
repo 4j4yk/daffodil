@@ -51,6 +51,10 @@ describe('@daffodil/design/menu | DaffMenuActivatorDirective', () => {
     expect(component).toBeTruthy();
   });
 
+  it('should have set aria-haspopup to menu', () => {
+    expect(de.nativeElement.getAttribute('aria-haspopup')).toBe('menu');
+  });
+
   it('should open the menu when the button is clicked', () => {
     const menuService = TestBed.inject(DaffMenuService);
     spyOn(menuService, 'open');
