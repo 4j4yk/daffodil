@@ -55,8 +55,7 @@ jobs:
     - name: Login with Test Registry User
       run: npx npm-cli-login -u test -p 1234 -e test@domain.test -r http://localhost:4873
 
-    # Publish packages to Verdaccio
-    - name: Publish packages to Verdaccio
+    - name: Publish packages to temporary registry
       run: |
         npm set registry http://localhost:4873/
         for package in dist/*; do
@@ -73,7 +72,6 @@ jobs:
     - name: Create Angular 20 app
       working-directory: /tmp
       run: |
-        npm set registry http://localhost:4873/
         npx @angular/cli@^20.0.0 new test-app --skip-git --package-manager=npm --style=scss --routing=true
 
     # Install and run @daffodil/commerce schematic
@@ -86,4 +84,9 @@ jobs:
     - name: Run commerce schematic
       working-directory: /tmp/test-app
       run: npx ng add @daffodil/commerce@0.0.0
+
+    - name: Build App
+      working-directory: /tmp/test-app
+      run: npx ng build -c production
+
 
