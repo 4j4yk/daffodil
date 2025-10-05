@@ -39,9 +39,18 @@ jobs:
         read-only-azure-connection-string: ${{ secrets.AZURE_NX_CACHE_READONLY_CONNECTION_STRING }}
         event-name: 'pull_request'
 
+    ## Adjust the schematic installed version so that it matches the local registry
+    - run: sed -i "s/export const version = .*/export const version = '0.0.0';/" tools/schematics/ng-add/generators/version.ts 
+
+    ## Adjust the root package version to 0.0.0 so that graycoreio/github-actions/set-versions-from-root uses the version 0.0.0
+    - run: npm version 0.0.0 --no-git-tag-version 
+
     # Build all packages
     - name: Build packages
       run: npx nx run-many -t build --parallel=1
+
+    - name: Set versions in dist
+      uses: graycoreio/github-actions/set-versions-from-root@main
 
     # Publish packages to Verdaccio
     - name: Publish packages to Verdaccio
