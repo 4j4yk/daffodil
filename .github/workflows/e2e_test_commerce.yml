@@ -80,5 +80,5 @@ jobs:
 
     - name: Run commerce schematic
       working-directory: /tmp/test-app
-      run: npx ng add @daffodil/commerce
+      run: npx ng add @daffodil/commerce@0.0.0
 
