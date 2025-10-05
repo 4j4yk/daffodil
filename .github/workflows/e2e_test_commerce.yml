@@ -56,11 +56,13 @@ jobs:
     - name: Publish packages to Verdaccio
       run: |
         npm set registry http://localhost:4873/
-        for package in dist/libs/*; do
-          if [ -d "$package" ]; then
-            cd "$package"
-            npm publish --registry http://localhost:4873/
-            cd -
+        for package in dist/*; do
+          if [ -d "$package" ] && [ -f "$package/package.json" ]; then
+            if ! grep -q '"private":\s*true' "$package/package.json"; then
+              cd "$package"
+              npm publish --registry http://localhost:4873/
+              cd -
+            fi
           fi
         done
 
