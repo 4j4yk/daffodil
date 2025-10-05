@@ -3,9 +3,7 @@ name: E2E Commerce Install Test
 on:
   push:
     branches:
-      - develop
-  pull_request:
-
+      - add_commerce_schematic_test
 jobs:
   test_commerce_install:
     name: Test Commerce Package Install
@@ -22,7 +20,7 @@ jobs:
         node: [20.19.x]
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v5
       with:
         fetch-depth: 1
 
