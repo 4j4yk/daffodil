@@ -31,7 +31,7 @@ jobs:
 
     - uses: graycoreio/daffodil/.github/actions/setup-nx-remote-cache@develop
       with:
-        cache-mode: ${{ inputs.cache-mode }}
+        cache-mode: 'read-only'
         read-only-azure-connection-string: ${{ secrets.AZURE_STORAGE_CONNECTION_STRING }}
         read-write-azure-connection-string: ${{ secrets.AZURE_NX_CACHE_READWRITE_CONNECTION_STRING }}
         event-name: ${{ github.event_name }}
@@ -54,20 +54,19 @@ jobs:
 
     # Create Angular 20 app in temp directory
     - name: Create Angular 20 app
+      working-directory: /tmp
       run: |
-        cd /tmp
         npm set registry http://localhost:4873/
         npx @angular/cli@^20.0.0 new test-app --skip-git --package-manager=npm --style=scss --routing=true
 
     # Install and run @daffodil/commerce schematic
     - name: Install @daffodil/commerce
+      working-directory: /tmp/test-app
       run: |
-        cd /tmp/test-app
         npm set registry http://localhost:4873/
         npm install @daffodil/commerce
 
     - name: Run commerce schematic
-      run: |
-        cd /tmp/test-app
-        npx ng add @daffodil/commerce
+      working-directory: /tmp/test-app
+      run: npx ng add @daffodil/commerce
 
