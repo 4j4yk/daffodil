@@ -22,6 +22,7 @@ jobs:
     strategy:
       matrix:
         node: [20.19.x]
+        angular: [^20.0.0]
 
     steps:
     - uses: actions/checkout@v5
@@ -72,7 +73,7 @@ jobs:
     - name: Create Angular 20 app
       working-directory: /tmp
       run: |
-        npx @angular/cli@^20.0.0 new test-app --skip-git --package-manager=npm --style=scss --routing=true
+        npx @angular/cli@${{ matrix.angular }} new test-app --skip-git --package-manager=npm --style=scss --routing=true
 
     # Install and run @daffodil/commerce schematic
     - name: Install @daffodil/commerce
@@ -88,7 +89,7 @@ jobs:
     - name: Adjust budget
       working-directory: /tmp/test-app
       run: |
-        sed -i 's/"maximumError": "1mb"/"maximumError": "2mb"/g' angular.json
+        sed -i 's/"maximumError": "1MB"/"maximumError": "2MB"/g' angular.json
 
     - name: Build App
       working-directory: /tmp/test-app
