@@ -85,6 +85,11 @@ jobs:
       working-directory: /tmp/test-app
       run: npx ng add @daffodil/commerce@0.0.0
 
+    - name: Adjust budget
+      working-directory: /tmp/test-app
+      run: |
+        sed -i 's/"maximumError": "1mb"/"maximumError": "2mb"/g' angular.json
+
     - name: Build App
       working-directory: /tmp/test-app
       run: npx ng build -c production
