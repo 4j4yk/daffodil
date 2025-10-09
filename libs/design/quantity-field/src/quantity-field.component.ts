@@ -48,9 +48,9 @@ import { DaffQuantitySelectComponent } from './quantity-select/quantity-select.c
   ],
 })
 export class DaffQuantityFieldComponent extends DaffFormFieldControl<number> implements ControlValueAccessor, DaffFormFieldControl<number>, OnInit {
-  // readonly private _value = toSignal(this.ngControl.valueChanges, {
-  //   initialValue: ,
-  // })
+  readonly private _value = toSignal(this.ngControl.valueChanges, {
+    initialValue: ,
+  })
 
   /** @docs-private */
   get controlType() {
