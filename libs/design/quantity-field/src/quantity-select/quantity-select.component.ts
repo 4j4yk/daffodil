@@ -1,19 +1,25 @@
-import {
-  NgFor,
-  NgIf,
-} from '@angular/common';
+import { coerceNumberProperty } from '@angular/cdk/coercion';
 import {
   Component,
   Input,
+  Output,
+  EventEmitter,
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   ViewChild,
+  OnInit,
+  OnDestroy,
+  Optional,
 } from '@angular/core';
 import {
   NgControl,
   ReactiveFormsModule,
+  UntypedFormControl,
 } from '@angular/forms';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
+import { DaffFormFieldControl } from '@daffodil/design/form-field';
 import { DaffNativeSelectComponent } from '@daffodil/design/native-select';
 
 /**
@@ -29,69 +35,105 @@ export const makeValueArray = (min: number, max: number, increment: number) =>
   imports: [
     DaffNativeSelectComponent,
     ReactiveFormsModule,
-    NgFor,
-    NgIf,
   ],
 })
-export class DaffQuantitySelectComponent {
-
+export class DaffQuantitySelectComponent implements OnInit, OnDestroy {
   @ViewChild(DaffNativeSelectComponent) select: DaffNativeSelectComponent;
 
   /**
-   * @docs
-   * The minimum number selectable.
+   * A new control for the nested native select.
+   * We don't bind the native select directly to the inherited form control
+   * to avoid triggering updates on the input event.
+   * Instead, we listen for the change event and manually patch form control values.
+   */
+  _selectControl = new UntypedFormControl();
+
+  _destroyed = new Subject();
+
+  /**
+   * The minimum number selectable. Defaults to 1.
    */
   @Input() min = 1;
 
   /**
-   * @docs
-   * The maximum number selectable;
+   * The maximum number selectable. Defaults to 10.
    */
   @Input() max = 10;
 
   /**
-   * @docs
-   * Property used to determine whether or not the DaffQuantitySelectComponent is
-   * used in a situation whether the `max` isn't a true max.
+   * Property used to determine whether or not the select is
+   * used in a situation where the `max` isn't a true max.
    */
   @Input() extendable = true;
+
+  /**
+   * Event emitted when the quantity select gains focus
+   */
+  @Output() focusChange = new EventEmitter<void>();
+
+  /**
+   * Event emitted when the quantity select loses focus
+   */
+  @Output() blurChange = new EventEmitter<void>();
+
+  /**
+   * Event emitted when the quantiy select's value changes
+   */
+  @Output() valueChange = new EventEmitter<number>();
 
   /**
    * The amount to increment between "min" and "max".
    */
   private increment = 1;
 
-  _value = 1;
-
-  get value() {
-    return this._value;
+  get value(): number {
+    return this.formFieldControl.value;
   }
-  set value(value) {
-    this._value = value;
-    this.ngControl.control.patchValue(this._value);
+  set value(value: number) {
+    this.formFieldControl.ngControl?.control.patchValue(value);
+    this._selectControl.patchValue(value);
     this.changeDetectorRef.markForCheck();
   }
 
-  constructor(public ngControl: NgControl, private changeDetectorRef: ChangeDetectorRef) {}
+  constructor(
+    @Optional() public ngControl: NgControl,
+    private changeDetectorRef: ChangeDetectorRef,
+    private formFieldControl: DaffFormFieldControl<number>,
+  ) {}
 
   /**
-   * Callback function fired when the value changes.
-   * Used to pass the value back up to the ngControl.
+   * @docs-private
    */
-  onValueChange(e) {
-    this.value = e.target.value;
+  ngOnInit() {
+    this._selectControl.patchValue(this.formFieldControl.value);
+    this.setSelectDisabled();
+    this.formFieldControl.stateChanges.pipe(
+      takeUntil(this._destroyed),
+    ).subscribe(() => {
+      this.setSelectDisabled();
+    });
   }
 
-  get focused(): boolean {
-    return this.select.focused;
+  ngOnDestroy() {
+    this._destroyed.next(true);
   }
 
   focus() {
     this.select.focus();
   }
 
-  onFocus() {
-    this.ngControl.control.markAsTouched();
+  /**
+   * @docs-private
+   *
+   * Callback function fired when the value changes.
+   * Used to pass the value back up to the ngControl.
+   */
+  onValueChange(event: Event) {
+    const val = coerceNumberProperty((<HTMLSelectElement>event.target).value);
+
+    this.value = val;
+
+    this.valueChange.emit(val);
   }
 
   /**
@@ -99,5 +141,12 @@ export class DaffQuantitySelectComponent {
    */
   get valueArray() {
     return makeValueArray(this.min, this.max, this.increment);
+  }
+
+  private setSelectDisabled() {
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+    this.formFieldControl.disabled
+      ? this._selectControl.disable()
+      : this._selectControl.enable();
   }
 }

@@ -3,8 +3,8 @@
   [attr.max]="max"
   [attr.min]="min"
   [attr.step]="1"
-  (focus)="onFocus()"
-  (blur)="onBlur()"
   (change)="onValueChange($event)"
+  (focus)="focusChange.emit()" 
+  (blur)="blurChange.emit()"
   [formControl]="_inputControl"
 >

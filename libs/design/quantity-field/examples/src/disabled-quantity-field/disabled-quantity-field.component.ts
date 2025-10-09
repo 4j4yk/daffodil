@@ -8,7 +8,7 @@ import {
 } from '@angular/forms';
 
 import { DAFF_FORM_FIELD_COMPONENTS } from '@daffodil/design/form-field';
-import { DaffQuantityFieldComponent } from '@daffodil/design/quantity-field';
+import { DAFF_QUANTITY_FIELD_COMPONENTS } from '@daffodil/design/quantity-field';
 
 @Component({
   // eslint-disable-next-line @angular-eslint/component-selector
@@ -18,7 +18,7 @@ import { DaffQuantityFieldComponent } from '@daffodil/design/quantity-field';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     DAFF_FORM_FIELD_COMPONENTS,
-    DaffQuantityFieldComponent,
+    DAFF_QUANTITY_FIELD_COMPONENTS,
     ReactiveFormsModule,
   ],
 })

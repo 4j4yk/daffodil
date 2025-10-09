@@ -1,12 +1,14 @@
-import { coerceNumberProperty } from '@angular/cdk/coercion';
 import {
   Component,
   Input,
+  Output,
+  EventEmitter,
   ViewChild,
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   OnInit,
   OnDestroy,
+  Optional,
 } from '@angular/core';
 import {
   UntypedFormControl,
@@ -31,13 +33,28 @@ export class DaffQuantityInputComponent implements OnInit, OnDestroy {
   @ViewChild(DaffInputComponent) input: DaffInputComponent;
 
   /**
-   * @docs
+   * Event emitted when the quantity input gains focus
+   */
+  @Output() focusChange = new EventEmitter<void>();
+
+  /**
+   * Event emitted when the quantity input loses focus
+   */
+  @Output() blurChange = new EventEmitter<void>();
+
+  /**
+   * Event emitted when the quantity input's value changes
+   */
+  @Output() valueChange = new EventEmitter<number>();
+
+  @Input() quantity: number;
+
+  /**
    * The minimum number for the quantity input field
    */
   @Input() min = 1;
 
   /**
-   * @docs
    * The maximum number for the quantity input field
    */
   @Input() max = 10;
@@ -50,28 +67,24 @@ export class DaffQuantityInputComponent implements OnInit, OnDestroy {
    */
   _inputControl = new UntypedFormControl();
 
-  get focused(): boolean {
-    return this.input?.focused;
-  }
-
   _destroyed = new Subject();
 
-  get value() {
-    return this.ngControl.control.value;
+  get value(): number {
+    return this.ngControl?.control.value || this.quantity;
   }
-  set value(value) {
-    const val = Math.min(Math.round(coerceNumberProperty(value)), this.max);
-    this.ngControl.control.patchValue(val);
+  set value(value: number) {
+    if (value === 0 || Number.isNaN(value)) {
+      value = this.value;
+    }
+    const val = Math.max(Math.min(Math.round(value), this.max), this.min);
+    this.ngControl?.control.patchValue(val);
     this._inputControl.patchValue(val);
+    this.quantity = value;
     this.changeDetectorRef.markForCheck();
   }
 
-  get disabled() {
-    return this.ngControl.control.disabled;
-  }
-
   constructor(
-    public ngControl: NgControl,
+    @Optional() public ngControl: NgControl,
     private changeDetectorRef: ChangeDetectorRef,
   ) {}
 
@@ -79,11 +92,11 @@ export class DaffQuantityInputComponent implements OnInit, OnDestroy {
    * @docs-private
    */
   ngOnInit() {
-    this._inputControl.patchValue(this.ngControl.control.value);
+    this._inputControl.patchValue(this.ngControl?.control.value ?? this.quantity);
     this.setInputDisabled();
-    this.ngControl.statusChanges.pipe(
+    this.ngControl?.statusChanges.pipe(
       takeUntil(this._destroyed),
-    ).subscribe(() => {
+    ).subscribe((s) => {
       this.setInputDisabled();
     });
   }
@@ -96,28 +109,21 @@ export class DaffQuantityInputComponent implements OnInit, OnDestroy {
     this.input.focus();
   }
 
-  onFocus() {
-    this.ngControl.control.markAsTouched();
-  }
-
-  onBlur() {
-    if (this.value === null || this.value === undefined) {
-      this.value = 1;
-      this.changeDetectorRef.markForCheck();
-    }
-  }
-
   /**
    * Callback function fired when the value changes.
    * Used to pass the value back up to the ngControl.
    */
-  onValueChange(e: any) {
-    this.value = e.target.value;
+  onValueChange(event: Event) {
+    if(event.target instanceof HTMLInputElement) {
+      this.value = event.target.valueAsNumber;
+    }
+
+    this.valueChange.emit(this.value);
   }
 
   private setInputDisabled() {
     // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-    this.ngControl.disabled
+    this.ngControl?.disabled
       ? this._inputControl.disable()
       : this._inputControl.enable();
   }

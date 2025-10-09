@@ -49,6 +49,8 @@ export const DaffFormFieldMissingControlMessage = 'A DaffFormFieldComponent must
   host: {
     class: 'daff-form-field',
     '[class.is-native-select]': 'isNativeSelect',
+    '[class.is-quantity-select]': 'isQuantitySelect',
+    '[class.is-quantity-input]': 'isQuantityInput',
     '[class.has-prefix]': '_prefix',
     '[class.has-suffix]': '_suffix || action',
     '[class.daff-error]': 'isError',
@@ -70,6 +72,16 @@ export class DaffFormFieldComponent implements AfterContentInit, AfterContentChe
   /** @docs-private */
   get isNativeSelect() {
     return this._control.controlType === 'native-select';
+  }
+
+  /** @docs-private */
+  get isQuantitySelect() {
+    return this._control.controlType === 'quantity-field native-select';
+  }
+
+  /** @docs-private */
+  get isQuantityInput() {
+    return this._control.controlType === 'quantity-field native-input';
   }
 
   constructor(private cd: ChangeDetectorRef, public elementRef: ElementRef) {}

@@ -51,7 +51,8 @@
 		}
 	}
 
-	&.is-native-select {
+	&.is-native-select,
+	&.is-quantity-select {
 		#{$root}__control {
 			&::after {
 				content: '';
@@ -103,6 +104,20 @@
 			font-size: 1rem;
 			line-height: 1.5rem;
 			padding: 1rem 0;
+		}
+
+		&.is-quantity-select,
+		&.is-quantity-input {
+			label,
+			.daff-form-label,
+			.daff-form-field__label {
+				~ daff-quantity-field {
+					select,
+					input {
+						padding: calc(1.5rem - 1px) 0 calc(0.5rem - 1px);
+					}
+				}
+			}
 		}
 
 		label,

@@ -3,13 +3,18 @@
     [min]="min"
     [max]="_maxFloor"
     [extendable]="max > selectMax"
-    [id]="id">
+    (focusChange)="onChildFocus()"
+    (blurChange)="onChildBlur()"
+    (valueChange)="onChildValueChange($event)">
   </daff-quantity-select>
 }
 @if (showInputField) {
   <daff-quantity-input
     [min]="min"
     [max]="max"
-    [id]="id">
+    [quantity]="quantity"
+    (focusChange)="onChildFocus()"
+    (blurChange)="onChildBlur()"
+    (valueChange)="onChildValueChange($event)">
   </daff-quantity-input>
 }
