@@ -7,7 +7,7 @@
 ///   }
 $daff-white: #ffffff;
 
-/// @group color-palettes  
+/// @group color-palettes
 /// Error color for indicating validation errors and critical states.
 /// @type Color
 /// @example scss - Error styling
@@ -28,8 +28,8 @@ $error: #dd0000;
 /// @example scss - Creating gradients
 ///   .blue-gradient {
 ///     background: linear-gradient(
-///       to right, 
-///       map-get($daff-blue, 20), 
+///       to right,
+///       map-get($daff-blue, 20),
 ///       map-get($daff-blue, 80)
 ///     );
 ///   }
@@ -58,7 +58,7 @@ $daff-primary: $daff-blue;
 
 /// @group color-palettes
 /// Secondary purple color palette with 10 shades for accent and secondary elements.
-/// @type Map  
+/// @type Map
 /// @example scss - Purple accent elements
 ///   .accent-border {
 ///     border-color: map-get($daff-purple, 50);
@@ -114,7 +114,7 @@ $daff-turquoise: (
 	100: #082218
 );
 
-/// @group color-palettes  
+/// @group color-palettes
 /// Yellow color palette with 10 shades for warnings and attention-grabbing elements.
 /// @type Map
 /// @example scss - Warning states
@@ -147,7 +147,7 @@ $daff-yellow: (
 ///     border-color: map-get($daff-red, 60);
 ///     background-color: map-get($daff-red, 10);
 ///   }
-/// @example scss - Destructive actions  
+/// @example scss - Destructive actions
 ///   .delete-button {
 ///     background-color: map-get($daff-red, 60);
 ///     color: map-get($daff-red, 10);
