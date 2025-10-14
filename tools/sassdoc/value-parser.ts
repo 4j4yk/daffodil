@@ -8,186 +8,181 @@ export interface SassDocItem {
   [key: string]: any;
 }
 
+export enum SassType {
+  MAP = 'sass-map',
+  VARIABLE = 'sass-variable',
+  COLOR = 'color',
+  STRING = 'string',
+  UNKNOWN = 'unknown',
+};
+
 export interface ParsedValue {
   raw: string;
   parsed?: any;
-  type: 'sass-map' | 'sass-variable' | 'color' | 'string' | 'unknown';
+  type: SassType;
 }
 
+interface ParsedSassMap {
+  [key: string]: string | ParsedSassMap;
+}
 
-class SassValueParser {
-  
-  private isSassMap(value: string): boolean {
-    const trimmed = value.trim();
-    return trimmed.startsWith('(') && trimmed.endsWith(')') && trimmed.includes(':');
+function isSassMap(value: string): boolean {
+  return value.startsWith('(') && value.endsWith(')') && value.includes(':');
+}
+
+function isColor(value: string): boolean {
+  return value.startsWith('#') ||
+				 /^rgb\(/.test(value) ||
+				 /^rgba\(/.test(value) ||
+				 /^hsl\(/.test(value) ||
+				 /^hsla\(/.test(value);
+}
+
+function isSassVariable(value: string): boolean {
+  return value.startsWith('$');
+}
+
+function isString(value: string): boolean {
+  return value.startsWith('"') || value.startsWith('\'');
+}
+
+function getType(value: string): SassType {
+  const trimmed = value.trim();
+  if (isSassMap(trimmed)) {
+    return SassType.MAP;
+  } else if (isSassVariable(trimmed)) {
+    return SassType.VARIABLE;
+  } else if (isColor(trimmed)) {
+    return SassType.COLOR;
+  } else if (isString(trimmed)) {
+    return SassType.STRING;
+  }  else {
+    return SassType.UNKNOWN;
   }
+}
 
-  private isColor(value: string): boolean {
-    const trimmed = value.trim();
-    return trimmed.startsWith('#') || 
-           /^rgb\(/.test(trimmed) || 
-           /^rgba\(/.test(trimmed) ||
-           /^hsl\(/.test(trimmed) ||
-           /^hsla\(/.test(trimmed);
-  }
+function parseSassMap(value: string): ParsedSassMap | null {
+  try {
+    const mapContent = value
+      .trim()
+    // remove leading and trailing parentheses
+      .slice(1, -1)
+      .replace(/\n\s*/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
 
-  private isSassVariable(value: string): boolean {
-    const trimmed = value.trim();
-    return trimmed.startsWith('$');
-  }
+    const result: ParsedSassMap = {};
 
+    let depth = 0;
+    let currentKey = '';
+    let currentValue = '';
+    let inKey = true;
 
-  private parseSassMap(value: string): any {
-    try {
-      let mapContent = value.trim().slice(1, -1);
-      
-      mapContent = mapContent.replace(/\n\s*/g, ' ').replace(/\s+/g, ' ').trim();
-      
-      const result: any = {};
-      
-      let depth = 0;
-      let currentKey = '';
-      let currentValue = '';
-      let inKey = true;
-      let i = 0;
-      
-      while (i < mapContent.length) {
-        const char = mapContent[i];
-        
-        if (char === '(' && !inKey) {
-          depth++;
-          currentValue += char;
-        } else if (char === ')' && !inKey) {
-          depth--;
-          currentValue += char;
-        } else if (char === ':' && depth === 0 && inKey) {
-          inKey = false;
-          i++;
-          continue;
-        } else if (char === ',' && depth === 0 && !inKey) {
-          const key = currentKey.trim();
-          const val = currentValue.trim();
-          
-          const parsedKey = key.replace(/^['"]|['"]$/g, '');
-          
-          let parsedValue: any = val;
-          if (this.isSassMap(val)) {
-            parsedValue = this.parseSassMap(val);
-          } else if (this.isColor(val)) {
-            parsedValue = val.trim();
-          } else {
-            parsedValue = val.replace(/^['"]|['"]$/g, '');
-          }
-          
-          result[parsedKey] = parsedValue;
-          
-          currentKey = '';
-          currentValue = '';
-          inKey = true;
-        } else {
-          if (inKey) {
-            currentKey += char;
-          } else {
-            currentValue += char;
-          }
-        }
-        
-        i++;
-      }
-      
-      if (currentKey.trim() && currentValue.trim()) {
+    for (const char of mapContent) {
+      if (char === '(' && !inKey) {
+        // begin nested map
+        depth++;
+        currentValue += char;
+      } else if (char === ')' && !inKey) {
+        // end nested map
+        depth--;
+        currentValue += char;
+      } else if (char === ':' && depth === 0 && inKey) {
+        // end key def
+        inKey = false;
+        continue;
+      } else if (char === ',' && depth === 0 && !inKey) {
+        // end value def
         const key = currentKey.trim();
         const val = currentValue.trim();
-        
         const parsedKey = key.replace(/^['"]|['"]$/g, '');
-        let parsedValue: any = val;
-        
-        if (this.isSassMap(val)) {
-          parsedValue = this.parseSassMap(val);
-        } else if (this.isColor(val)) {
-          parsedValue = val.trim();
-        } else {
-          parsedValue = val.replace(/^['"]|['"]$/g, '');
-        }
-        
-        result[parsedKey] = parsedValue;
+
+        // store the result of the key/value parse, could be a nested map
+        result[parsedKey] = isSassMap(val)
+          ? parseSassMap(val) || val
+          : isColor(val)
+            ? val.trim()
+            : val.replace(/^['"]|['"]$/g, '');
+
+        // reset values, ready for next key/value pair
+        currentKey = '';
+        currentValue = '';
+        inKey = true;
+      } else if (inKey) {
+        // append key
+        currentKey += char;
+      } else {
+        // append value
+        currentValue += char;
       }
-      
-      return result;
-    } catch (error) {
-      console.warn('Failed to parse Sass map:', value, error);
-      return null;
     }
-  }
 
+    if (currentKey.trim() && currentValue.trim()) {
+      const key = currentKey.trim();
+      const val = currentValue.trim();
 
-  public parseValue(value: string): ParsedValue {
-    const trimmed = value.trim();
-    
-    if (this.isSassMap(trimmed)) {
-      const parsed = this.parseSassMap(trimmed);
-      return {
-        raw: value,
-        parsed: parsed,
-        type: 'sass-map'
-      };
-    } else if (this.isSassVariable(trimmed)) {
-      return {
-        raw: value,
-        type: 'sass-variable'
-      };
-    } else if (this.isColor(trimmed)) {
-      return {
-        raw: value,
-        parsed: trimmed,
-        type: 'color'
-      };
-    } else {
-      return {
-        raw: value,
-        parsed: trimmed.replace(/^['"]|['"]$/g, ''),
-        type: trimmed.startsWith('"') || trimmed.startsWith("'") ? 'string' : 'unknown'
-      };
-    }
-  }
+      const parsedKey = key.replace(/^['"]|['"]$/g, '');
+      let parsedValue: any = val;
 
-
-  public processSassDocData(sassDocData: SassDocItem[]): SassDocItem[] {
-    const enhancedData = sassDocData.map(item => {
-      if (item.context && item.context.value) {
-        const parsedValue = this.parseValue(item.context.value);
-        
-        let enhanced = { ...item };
-        
-        if (parsedValue.type === 'sass-map' && parsedValue.parsed) {
-          enhanced = {
-            ...item,
-            context: {
-              ...item.context,
-              type: 'map',
-              value: parsedValue.parsed
-            }
-          };
-        } else if (parsedValue.parsed !== undefined) {
-          enhanced = {
-            ...item,
-            context: {
-              ...item.context,
-              parsedValue: parsedValue.parsed
-            }
-          };
-        }
-        
-        return enhanced;
+      if (isSassMap(val)) {
+        parsedValue = parseSassMap(val);
+      } else if (isColor(val)) {
+        parsedValue = val.trim();
+      } else {
+        parsedValue = val.replace(/^['"]|['"]$/g, '');
       }
-      
-      return item;
-    });
-    
-    return enhancedData;
+
+      result[parsedKey] = parsedValue;
+    }
+
+    return result;
+  } catch (error) {
+    console.warn('Failed to parse Sass map:', value, error);
+    return null;
   }
 }
 
+export function parseValue(value: string): ParsedValue {
+  const trimmed = value.trim();
+  const type = getType(trimmed);
+  let parsed: ParsedValue['parsed'];
 
+  switch (type) {
+    case SassType.MAP:
+      parsed = parseSassMap(trimmed);
+      break;
 
-export { SassValueParser };
+    case SassType.STRING:
+    case SassType.UNKNOWN:
+      parsed = trimmed.replace(/^['"]|['"]$/g, '');
+      break;
+
+    case SassType.VARIABLE:
+    case SassType.COLOR:
+    default:
+      parsed = trimmed;
+      break;
+  }
+
+  return {
+    raw: value,
+    type,
+    parsed,
+  };
+}
+
+export function processSassDocData(sassDocData: SassDocItem[]): SassDocItem[] {
+  return sassDocData.map(item => {
+    if (!item.context?.value) {
+      return item;
+    }
+
+    return {
+      ...item,
+      context: {
+        ...item.context,
+        parsedValue: parseValue(item.context.value),
+      },
+    };
+  });
+}

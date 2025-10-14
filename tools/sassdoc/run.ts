@@ -1,9 +1,8 @@
-// @ts-ignore
-import config from './sassdoc.config';
-import { processSassDoc } from './build';
-import { SassDocConfig } from './sassdoc.config';
 import * as fs from 'fs';
 import * as path from 'path';
+
+import { processSassDoc } from './build';
+import config, { SassDocConfig } from './sassdoc.config';
 
 interface RunOptions {
   outputDir?: string;
@@ -12,11 +11,11 @@ interface RunOptions {
 
 async function runSassDocBuild(customConfig?: Partial<SassDocConfig>, options: RunOptions = {}): Promise<void> {
   try {
-  
+
     const finalConfig: SassDocConfig = { ...config, ...customConfig };
-    
+
     const {
-      outputDir = '../../dist/docs',
+      outputDir = '../../dist/docs-assets',
       outputFilename = 'sassdoc-output',
     } = options;
 
@@ -43,4 +42,7 @@ if (require.main === module) {
   runSassDocBuild();
 }
 
-export { runSassDocBuild, RunOptions };
+export {
+  runSassDocBuild,
+  RunOptions,
+};

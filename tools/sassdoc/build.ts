@@ -1,7 +1,11 @@
-// @ts-ignore
-import sassdoc = require('sassdoc');
-import { SassValueParser, SassDocItem } from './value-parser';
+// @ts-expect-error there are no types for this package
+import sassdoc from 'sassdoc';
+
 import { SassDocConfig } from './sassdoc.config';
+import {
+  processSassDocData,
+  SassDocItem,
+} from './value-parser';
 
 export interface ParsedSassDocResult {
   data: SassDocItem[];
@@ -11,17 +15,16 @@ export interface ParsedSassDocResult {
 export async function processSassDoc(config: SassDocConfig): Promise<ParsedSassDocResult> {
   try {
     const data: SassDocItem[] = await sassdoc.parse(config.src, { verbose: config.verbose });
-    
-    const parser = new SassValueParser();
-    const enhancedData = parser.processSassDocData(data);
-    
+
+    const enhancedData = processSassDocData(data);
+
     return {
       data: enhancedData,
-      config
+      config,
     };
-    
+
   } catch (error) {
     console.error('SassDoc processing failed:', error);
     throw error;
   }
-} 
+}
