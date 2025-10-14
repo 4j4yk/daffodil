@@ -15,26 +15,27 @@ export interface SassDocConfig {
 
 const config: SassDocConfig = {
   src: [
-    '../../libs/design/scss/theming/_color-palettes.scss'
+    '../../libs/design/scss/**/*.scss',
   ],
-  dest: '../../dist/docs/sass-docs',
+  dest: '../../dist/docs-assets/sass-docs',
   theme: 'default',
   autofill: ['requires', 'throws', 'content'],
   groups: {
     'daffodil-docs': 'Daffodil Docs',
-    'theming': 'Theming Utilities',
-    'typography': 'Typography', 
-    'layout': 'Layout',
-    'interactions': 'Interactions',
-    'utilities': 'General Utilities'
+    'color-palettes': 'Color Palettes',
+    theming: 'Theming Utilities',
+    typography: 'Typography',
+    layout: 'Layout',
+    interactions: 'Interactions',
+    utilities: 'General Utilities',
   },
   display: {
     access: ['public'],
-    alias: false
+    alias: false,
   },
   package: '../../package.json',
   verbose: true,
-  parse: true
+  parse: true,
 };
 
-export default config; 
+export default config;
