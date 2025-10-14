@@ -5,6 +5,8 @@
   "scripts": {
     "build": "tsx run.ts",
     "watch": "nodemon --watch '../../libs/design/**/*.scss' --exec 'npm run build'",
+		"lint": "eslint .",
+    "lint:fix": "eslint . --fix",
 		"test": "tsx value-parser.spec.ts"
   },
   "devDependencies": {

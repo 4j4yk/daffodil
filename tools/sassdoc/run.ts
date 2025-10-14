@@ -19,6 +19,7 @@ async function runSassDocBuild(customConfig?: Partial<SassDocConfig>, options: R
       outputFilename = 'sassdoc-output',
     } = options;
 
+    // eslint-disable-next-line no-console
     console.log('Sources:', finalConfig.src);
 
     const result = await processSassDoc(finalConfig);
@@ -30,6 +31,7 @@ async function runSassDocBuild(customConfig?: Partial<SassDocConfig>, options: R
 
     const jsonFile = path.resolve(fullOutputDir, `${outputFilename}.json`);
     fs.writeFileSync(jsonFile, JSON.stringify(result.data, null, 2), 'utf8');
+    // eslint-disable-next-line no-console
     console.log('JSON output saved to:', jsonFile);
 
   } catch (error) {
