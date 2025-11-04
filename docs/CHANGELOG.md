@@ -1,5 +1,40 @@
 # Changelog
 
+## [0.91.0](https://github.com/graycoreio/daffodil/compare/v0.90.0...v0.91.0) (2025-11-04)
+
+
+### ⚠ BREAKING CHANGES
+
+* **design:** The 0 and 110 hues have been removed from the $daff-neutral palette.
+* **external-router:** Drivers will now directly throw errors in response to platform responses where they wouldn't previously. Direct driver dependents should adjust driver calls to better handle these errors.
+* **design:** Checkbox components have been moved to their own package and need to be imported from `@daffodil/design/checkbox`.
+* **design:** Modal behavior now restricts to a single open modal at any time. When a new modal is opened, any previously open modal will be automatically closed. Previously, multiple modals could be stacked and displayed simultaneously.
+
+### Features
+
+* **design:** `daff-get-font-colors` can retrieve theme font colors ([#4141](https://github.com/graycoreio/daffodil/issues/4141)) ([89c9c9b](https://github.com/graycoreio/daffodil/commit/89c9c9b49bcab7167b2183357d0984b7e6e71082))
+* **design:** create `daff-create-theme` function ([#4132](https://github.com/graycoreio/daffodil/issues/4132)) ([263d13d](https://github.com/graycoreio/daffodil/commit/263d13d41d4e8ca29bf28038bd541f207c743033))
+* **design:** create `daff-get-font-colors` function ([#4118](https://github.com/graycoreio/daffodil/issues/4118)) ([b6aca33](https://github.com/graycoreio/daffodil/commit/b6aca33f54a283c54ef202d6a7e90924f1a6cd0d))
+* **design:** create `DaffDisableableDirective` ([#3753](https://github.com/graycoreio/daffodil/issues/3753)) ([d5c9fb7](https://github.com/graycoreio/daffodil/commit/d5c9fb7fd2308999db206922babd9e2953794256))
+* **design:** create `DaffOrientableDirective` and update implementations in design components ([#4133](https://github.com/graycoreio/daffodil/issues/4133)) ([e8c217e](https://github.com/graycoreio/daffodil/commit/e8c217e14b56e907b37e6dc6f7030a76fa96739c))
+* **design:** only allow one modal to be open at a time ([#4110](https://github.com/graycoreio/daffodil/issues/4110)) ([68c36e5](https://github.com/graycoreio/daffodil/commit/68c36e5309f1cd7c43815b2dc8149a7930617d78))
+* **design:** remove 0 and 110 from neutral palette ([#3761](https://github.com/graycoreio/daffodil/issues/3761)) ([b08cc48](https://github.com/graycoreio/daffodil/commit/b08cc48e289b89371c97740e5ea4ca3ddfe7d028))
+* **design:** shard and convert checkbox components to standalone ([#4127](https://github.com/graycoreio/daffodil/issues/4127)) ([e7fc3bd](https://github.com/graycoreio/daffodil/commit/e7fc3bd30ca3f33f31694c4e74c2f0facd3939c8))
+* **design:** update `daff-text-contrast` function ([#4122](https://github.com/graycoreio/daffodil/issues/4122)) ([4559ebd](https://github.com/graycoreio/daffodil/commit/4559ebd9599dfd03cd6f5167c5d6fbaf3169f80a))
+* **design:** update `DaffImageComponent` to use `NgOptimizedImage` ([#4134](https://github.com/graycoreio/daffodil/issues/4134)) ([9478a45](https://github.com/graycoreio/daffodil/commit/9478a45bd27109a19446eb274ca81a95b4478747))
+* **docs,dgeni,daffio:** add edit button to docs pages ([#4137](https://github.com/graycoreio/daffodil/issues/4137)) ([4b5be2d](https://github.com/graycoreio/daffodil/commit/4b5be2d11798cc556a9901af376f08e82270371f))
+* **driver:** add routable objects system for in-memory drivers ([#4144](https://github.com/graycoreio/daffodil/issues/4144)) ([c212f46](https://github.com/graycoreio/daffodil/commit/c212f46ea991e4de9b4af0119d1f3f7f4a098b6b))
+* **external-router:** remove unnecessary `processErrors` function ([#4117](https://github.com/graycoreio/daffodil/issues/4117)) ([5bb0976](https://github.com/graycoreio/daffodil/commit/5bb0976ba63553964afc8403e2d64b9e2ee3d37e))
+* **product:** register products as routable objects for automatic URL resolution ([#4146](https://github.com/graycoreio/daffodil/issues/4146)) ([aebfad1](https://github.com/graycoreio/daffodil/commit/aebfad10ea5de1a5bfca11df2b46e181f04edba0))
+
+
+### Bug Fixes
+
+* **design:** fix duplicate track keys in DaffTreeComponent by using unique node IDs ([#4115](https://github.com/graycoreio/daffodil/issues/4115)) ([2f849d7](https://github.com/graycoreio/daffodil/commit/2f849d7417e574ebe2a2c177411b51234a0ee9a5))
+* **design:** paginator is hydration incompatible ([#4142](https://github.com/graycoreio/daffodil/issues/4142)) ([85c449d](https://github.com/graycoreio/daffodil/commit/85c449ddabeef8087da5e5b97486984a9b63ee80))
+* **dgeni:** design search index not generated or uploaded ([#4136](https://github.com/graycoreio/daffodil/issues/4136)) ([ce18be2](https://github.com/graycoreio/daffodil/commit/ce18be2dfa43b08eb0597104769beb612ba74e0b))
+* **product:** getByUrl on DaffInMemoryProductService works with urls ([#4147](https://github.com/graycoreio/daffodil/issues/4147)) ([a29cdab](https://github.com/graycoreio/daffodil/commit/a29cdab625a7f2a08c4349ffda0c3ec6ff76270c))
+
 ## [0.90.0](https://github.com/graycoreio/daffodil/compare/v0.89.0...v0.90.0) (2025-10-07)
 
 
